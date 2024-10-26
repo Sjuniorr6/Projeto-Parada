@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Parada Segura</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #707172;
+        }
+        .container-fluid {
+            display: flex;
+            flex-direction: row;
+        }
+        .sidebar {
+            flex: 1;
+            max-width: 250px;
+            padding: 20px;
+            background-color: #343a40;
+            color: #fff;
+        }
+        .sidebar h2 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+        .sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .main-content {
+            flex: 3;
+            padding: 20px;
+        }
+        .voucher {
+            background-color: #e3f2fd; /* Azul claro */
+            border-radius: 15px;
+            padding: 10px;
+            text-align: center;
+            margin: 10px;
+            flex: 1 1 200px; /* Ajuste para caber mais vouchers */
+            max-width: 200px;
+        }
+        .voucher-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: left;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-dark text-white p-1 mb-2">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <a class="navbar-brand" href="{% url 'home' %}">Parada Segura</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <form class="form-inline ml-auto" method="get">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Pesquisar Empresa" aria-label="Search" name="q" value="{{ query }}">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
+                    </form>
+                    <ul class="navbar-nav ml-auto">
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-link nav-link" type="submit">Logout</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">Login</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div class="container-fluid">
+        <div class="sidebar">
+            <h2>Histórico de Vouchers</h2>
+            <ul>
+                {% for voucher in vouchers %}
+                    <li>
+                        <a href="{% url 'sideDetailView' voucher.id %}">
+                            {{ voucher.Nome_do_motorista }} - R$ {{ voucher.saldo }}  
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="jumbotron">
+                <h2 class="display-4">Bem-vindo ao Parada Segura!</h2>
+                <p class="lead">Sua segurança é nossa prioridade.</p>
+                <hr class="my-4">
+                <p>Clique Para gerar seu Voucher</p>
+                <a class="btn btn-primary btn-lg" href="{% url 'registro_motorista_form' %}" role="button">Clique Para gerar seu Voucher</a>
+            </div>
+            <div class="voucher-container">
+                {% if vouchers %}
+                    {% for voucher in vouchers %}
+                        {% if voucher.saldo > 0 %}
+                            <div class="voucher">
+                                <h2>Seu Voucher</h2>
+                                <p>Motorista: {{ voucher.Nome_do_motorista }}</p>
+                                <p>Empresa: {{ voucher.Nome_da_empresa }}</p>
+                                {% if perms.home.change_voucher %}
+                                <a href="{% url 'voucher_detail' voucher.id %}">
+                                    <img src="data:image/png;base64,{{ voucher.qr_code }}" alt="QR Code">
+                                </a>
+                                {% endif %}
+                                <p>Valor: R$ 40.00</p>
+                                <p>Saldo Atual: R$ {{ voucher.saldo }}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p>Não há vouchers disponíveis no momento.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <footer class="bg-dark text-white p-3 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Parada Segura. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

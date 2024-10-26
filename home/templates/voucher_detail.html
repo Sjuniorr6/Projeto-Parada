@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Voucher</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #707172;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .card {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            background-color: #fff;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .comprovante-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .btn-primary, .btn-secondary {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">Detalhes do Voucher</h1>
+                <p><strong>Motorista:</strong> {{ voucher.Nome_do_motorista }}</p>
+                <p><strong>Empresa:</strong> {{ voucher.Nome_da_empresa }}</p>
+                <p><strong>CNPJ:</strong> {{ voucher.cnpj }}</p>
+                <p><strong>Número da CNH:</strong> {{ voucher.Numero_da_cnh }}</p>
+                <p><strong>Placa do Carro:</strong> {{ voucher.placa_do_carro }}</p>
+                <p><strong>Data de Criação:</strong> {{ voucher.created_at }}</p>
+                <p><strong>Saldo Atual:</strong> R$ {{ voucher.saldo }}</p>
+
+                <form method="post" action="{% url 'atualizar_saldo' voucher.id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="valor_utilizado">Valor Utilizado:</label>
+                        <input type="number" class="form-control" id="valor_utilizado" name="valor" step="0.01" placeholder="Valor a subtrair">
+                    </div>
+                    <div class="form-group">
+                        <label for="comprovante">Comprovante:</label>
+                        <input type="file" class="form-control" id="comprovante" name="comprovante">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Atualizar Saldo</button>
+                </form>
+
+                <div class="comprovante-container">
+                    <h3>Comprovantes</h3>
+                    {% for comprovante in voucher.comprovantes.all %}
+                        <img src="{{ comprovante.imagem.url }}" alt="Comprovante" class="img-fluid">
+                    {% endfor %}
+                </div>
+                <a href="{% url 'home' %}" class="btn btn-secondary mt-3">Voltar para Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
